@@ -4,8 +4,6 @@ name: dist
 on:
   pull_request:
   push:
-    branches:
-    - main
     tags:
     - '*'
 
@@ -125,8 +123,28 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: "dist-${{ runner.os }}"
+        name: "dist-${{ runner.os }}-${{runner.python-version }}"
         path: dist
+
+  merge-native:
+    runs-on: ubuntu-latest
+    needs: cross-build
+    steps:
+      - name: Merge Windows Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: dist-Windows
+          pattern: dist-Windows*
+      - name: Merge Linux Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: dist-Linux
+          pattern: dist-Linux*
+      - name: Merge macOS Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: dist-macOS
+          pattern: dist-macOS*
 
   #
   # Build roboRIO/raspbian wheels
@@ -208,8 +226,18 @@ jobs:
       
     - uses: actions/upload-artifact@v4
       with:
-        name: dist-${{ matrix.os.name }}
+        name: dist-${{ matrix.os.name }}-${{ matrix.os.container }}
         path: dist
+
+  merge-cross:
+    runs-on: ubuntu-latest
+    needs: cross-build
+    steps:
+      - name: Merge raspbian Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: dist-raspbian
+          pattern: dist-raspbian*
 
   #
   # Publish wheels to wpilib artifactory, pypi
