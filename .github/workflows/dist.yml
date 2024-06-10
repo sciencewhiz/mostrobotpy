@@ -124,7 +124,7 @@ jobs:
 
   merge:
     runs-on: ubuntu-latest
-    needs: cross-build, build
+    needs: [cross-build, build]
     steps:
       - name: Merge Windows Artifacts
         uses: actions/upload-artifact/merge@v4
